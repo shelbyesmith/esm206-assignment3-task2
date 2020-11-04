@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = TRUE)
 library(tidyverse)
 library(lubridate)
 ```
@@ -57,8 +57,11 @@ Make sure to `View()` the resulting data frame (remember: run `View()` in the Co
 
 ```{r}
 # Your code here: 
-
-
+sw_split_name<- starwars %>% 
+  separate(col = name,
+           into = c("name_1", "name_2"),
+           sep="-")
+# Additional pieces discarded in 1 rows [49]
 ```
 
 #### 1B. Follow me
@@ -81,6 +84,7 @@ sw_sep_names <- starwars %>% # Start from starwars data
            remove = FALSE) # And *do not* remove the original column
 
 # Check the output to understand what it does.
+#This keeps the column name but then adds 2 columns, one is the first name and the second is the rest of the name. If there are more than 2 names, the extra pieces all get put into the second new column. 
 ```
 
 #### 1B. On your own
@@ -91,7 +95,12 @@ Make sure to `View()` the resulting data frame (remember: run `View()` in the Co
 
 ```{r}
 # Your code here:
-
+sw_skin_sep<- starwars %>% 
+  separate(col=skin_color,
+           into = c("skin_1", "skin_2"),
+           sep = ",",
+           extra = "merge",
+           remove = FALSE)
 
 ```
 
@@ -127,7 +136,11 @@ In the code chunk below, starting from the `mpg` data create a new data frame ca
 
 ```{r}
 # Your code here: 
-
+mpg_model_class<-mpg %>% #starting from the `mpg` data create a new data frame called `mpg_model_class`
+  unite(col=model_class, #new column called `model_class`
+        c(model, class), #combines the `model` and `class` column information
+        sep= "-", #separated by a dash "-"
+        remove=FALSE) #retains the original columns
 
 ```
 
@@ -157,7 +170,11 @@ In the code chunk below, use `ymd()` to convert a date that you choose in `YYYY-
 
 ```{r}
 # Your code here: 
+ymd(19960717)
 
+ymd("1996-07-17")
+
+ymd("1996/07/17")
 
 ```
 
@@ -182,8 +199,9 @@ In the code chunk below, create a vector (using `c()`, as above) stored as `some
 
 ```{r}
 # Your code here: 
-
-
+some_dates<- c(08031994,08151954, 11161953) #create a vector (using `c()`, as above) stored as `some_dates` that contains three values that represent dates as numbers, in mdy format: 11061972, 02142007,01301843
+some_dates_converted<-mdy(some_dates) #use `lubridate::mdy()` to return them in date format, storing as a vector `some_dates_converted`
+class(some_dates_converted) #check the class of that vector
 ```
 
 #### 3C. Follow me
@@ -196,7 +214,7 @@ In this example, I use `ymd()` within `mutate()` to add a `date_new` column with
 # Run this code first (remember you can select lines you want to run, then press Cmd/Ctrl + Enter to run it): 
 
 lakers_dates <- lakers %>% 
-  mutate(date_new = ymd(date)) %>% 
+  mutate(date_new = ymd(date)) %>% #add a `date_new` column with the nicely converted date
   mutate(year_new = year(date_new)) %>% 
   mutate(month_new = month(date_new))
   
@@ -209,8 +227,7 @@ points_by_month <- lakers_dates %>%
   summarize(total_points = sum(points))
 
 # View it: 
-points_by_month
-
+view(points_by_month)
 ```
 
 #### 3C. On your own
@@ -226,8 +243,18 @@ Starting from the `lakers` dataset, create a new dataset called `gasol_hookshots
 
 ```{r}
 # Your code here: 
+gasol_hookshots<- lakers %>% 
+  filter(player== "Pau Gasol", type== "hook") %>% #Filter to only include player is Pau Gasol and type (shot type) is "hook"
+  mutate(date=ymd(date)) %>% #Use mutate() to update (or add (would have named it something other than date) the date column to "Date" class with `ymd()`
+  mutate(month=month(date)) #Add a new column that contains the month, parsed from the date created above with `month()`
 
+hookshots_by_month<- gasol_hookshots %>% 
+  count(month) #count() function combines group_by + summarize + n all in one
 
+view(hookshots_by_month)
+
+class(gasol_hookshots$date) #check class with gasol_hookshots$date because just using class(date) refers to the date funciton...
+class(gasol_hookshots$month) #check class...it's numeric 
 ```
 
 ### 4. `dplyr::case_when()`
@@ -255,13 +282,11 @@ Here's what that looks like for the example described above:
 # Run this code: 
 
 storm_season <- storms %>% # Start from storms data
-  mutate(season = case_when( # Add a new column season, which contains... 
-    month %in% c(12, 1, 2) ~ "winter", # "winter" if month is 12, 1 or 2
-    month %in% c(3, 4, 5) ~ "spring", # "spring" if month is 3, 4, or 5
-    month %in% c(6, 7, 8) ~ "summer", # "summer if month is 6, 7 or 8
-    month %in% c(9, 10, 11) ~ "fall" # "fall" if month is 9, 10 or 11
-  )
-  )
+  mutate(season = case_when(                  # Add a new column season, which contains... 
+    month %in% c(12, 1, 2) ~ "winter",        # "winter" if month is 12, 1 or 2
+    month %in% c(3, 4, 5) ~ "spring",         # "spring" if month is 3, 4, or 5
+    month %in% c(6, 7, 8) ~ "summer",         # "summer if month is 6, 7 or 8
+    month %in% c(9, 10, 11) ~ "fall"))          # "fall" if month is 9, 10 or 11
 
 # Run View(storm_season) in the Console to view the output data frame. See the new season column? That's been added using mutate & case_when()! 
 
@@ -276,7 +301,10 @@ Note: If you add another condition within `case_when()` that is `TRUE ~ "some th
 
 ```{r}
 # Your code here: 
-
+storms_danger<- storms %>% 
+  mutate(danger=case_when(                   #add a new column `danger` where if
+    status == "hurricane" ~ "high",          #status matches "hurricane", then the danger column contains "high"
+    status != "hurricane" ~ "moderate"))     #if the status is anything other than "hurricane", then the danger column contains "moderate"
 
 ```
 
