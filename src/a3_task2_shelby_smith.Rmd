@@ -250,11 +250,6 @@ gasol_hookshots<- lakers %>%
 
 hookshots_by_month<- gasol_hookshots %>% 
   count(month) #count() function combines group_by + summarize + n all in one
-
-view(hookshots_by_month)
-
-class(gasol_hookshots$date) #check class with gasol_hookshots$date because just using class(date) refers to the date funciton...
-class(gasol_hookshots$month) #check class...it's numeric 
 ```
 
 ### 4. `dplyr::case_when()`

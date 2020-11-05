@@ -617,14 +617,7 @@ gasol_hookshots&lt;- lakers %&gt;%
   mutate(month=month(date)) #Add a new column that contains the month, parsed from the date created above with `month()`
 
 hookshots_by_month&lt;- gasol_hookshots %&gt;% 
-  count(month) #count() function combines group_by + summarize + n all in one
-
-view(hookshots_by_month)
-
-class(gasol_hookshots$date) #check class with gasol_hookshots$date because just using class(date) refers to the date funciton...</code></pre>
-<pre><code>## [1] &quot;Date&quot;</code></pre>
-<pre class="r"><code>class(gasol_hookshots$month) #check class...it&#39;s numeric </code></pre>
-<pre><code>## [1] &quot;numeric&quot;</code></pre>
+  count(month) #count() function combines group_by + summarize + n all in one</code></pre>
 </div>
 </div>
 <div id="dplyrcase_when" class="section level3">
